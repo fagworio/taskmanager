@@ -31,6 +31,36 @@ Use uma única instância persistente do processo Node.js: o SSR e as chamadas t
 4. No cliente, TanStack Query com a integração tRPC atualiza a lista após criação, edição e exclusão. Os contratos e a validação de entrada estão em Zod; título vazio é rejeitado e tarefas inexistentes retornam `NOT_FOUND`.
 5. A lista começa com 8 tarefas e busca as seguintes perto do fim da página, usando cursor estável por data e ID. Um indicador e skeletons ficam visíveis por pelo menos 720 ms antes da próxima página aparecer; os novos cards entram com animação. **Carregar mais** é a alternativa caso `IntersectionObserver` não esteja disponível ou a tentativa falhe.
 
+## Checklist dos requisitos do desafio
+
+### Configuração do projeto
+
+- [x] Next.js 15.x com App Router, React e TypeScript.
+- [x] tRPC configurado para o frontend consumir as procedures do servidor.
+
+### Backend (tRPC)
+
+- [x] Modelo de tarefa com `id` UUID, `titulo`, `descricao` opcional e `dataCriacao` ISO 8601 UTC.
+- [x] Operações `task.create`, `task.list`, `task.update` e `task.delete`; `task.getById` também está disponível.
+- [x] Validação no servidor rejeita título vazio ou só com espaços e normaliza entradas com `trim()`.
+- [x] Erros significativos: `BAD_REQUEST` para entradas inválidas, `NOT_FOUND` para tarefas ausentes e falhas internas sanitizadas.
+- [x] Armazenamento exclusivamente em memória no processo Node.js, sem banco de dados.
+
+### Frontend (React/Next.js)
+
+- [x] Listagem inicial renderizada no servidor (SSR) e entregue ao cliente como dados iniciais.
+- [x] Tarefas exibidas em uma lista com ações de edição e exclusão.
+- [x] Formulário de criação e edição em componentes funcionais, com hooks e validação de título.
+- [x] Exclusão com confirmação e feedback visual de sucesso ou falha.
+- [x] Estados de carregamento, sucesso e erro tratados na lista, nos formulários e nas operações.
+
+### Extras
+
+- [x] Infinite Scroll com paginação por cursor e carregamento automático ao rolar; botão alternativo disponível.
+- [x] Feedback visual perceptível durante a paginação, seguido por animação de entrada dos novos cards.
+- [x] Comentários no código registram decisões importantes; este README documenta arquitetura, execução e testes.
+- [x] Testes unitários/de integração cobrem CRUD, validação e erros; testes E2E cobrem SSR, fluxos de CRUD e Infinite Scroll.
+
 ## Dados e paginação
 
 Cada tarefa contém `id`, `titulo`, `descricao` opcional e `dataCriacao`. O título aceita de 1 a 120 caracteres depois de `trim()`; a descrição é opcional e aceita até 2000 caracteres. Os dados começam vazios e desaparecem quando o processo é reiniciado. A memória não é compartilhada entre processos, workers, réplicas ou instâncias serverless.
